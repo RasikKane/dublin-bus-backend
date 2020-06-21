@@ -6,3 +6,5 @@
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
+dublin_bus_backend/dublin_bus_backend/__pycache__/
+dublin_bus_backend/user_auth/__pycache__/
