@@ -1,0 +1,8 @@
+/env/
+.DS_Store
+.idea/.gitignore
+.idea/backend.iml
+.idea/inspectionProfiles/
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
