@@ -26,7 +26,7 @@ python manage.py runserver
 
 ### `Reflecting DB changes`
 
-python manage.py makemigrations user_crud
+python manage.py makemigrations app_name
 
 ### `Committing DB changes`
 
