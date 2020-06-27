@@ -1,6 +1,8 @@
 from django.http import JsonResponse
 from rest_framework.views import APIView
 import requests
+import math
+from bus_stops.models import BusStops
 
 GOOGLE_MAPS_KEY = "AIzaSyCv4Jkj6OMUVN0swxdIzZMOYu1vaddkooY"
 
@@ -32,4 +34,30 @@ class GoogleMapsGetPlaceByID(APIView):
         content = {'lat': response['result']['geometry']['location']['lat'],
                    'lng': response['result']['geometry']['location']['lng']}
 
-        return JsonResponse(content, safe=False)
+        all_bus_stops = BusStops.objects.all()
+
+        # Create JSON response
+        payload = []
+        for bus_stop in all_bus_stops:
+            if self.calculate_distance(float(content['lat']), float(content['lng']), float(bus_stop.stop_lat),
+                                       float(bus_stop.stop_lng)) <= 0.5:
+                stop_details = {'stop_id': bus_stop.stop_id, 'stop_name': bus_stop.stop_name,
+                                'stop_lat': bus_stop.stop_lat,
+                                'stop_lng': bus_stop.stop_lng}
+                payload.append(stop_details)
+
+        return JsonResponse(payload, safe=False)
+
+    def calculate_distance(self, lat1, lon1, lat2, lon2):
+        radlat1 = math.pi * lat1 / 180
+        radlat2 = math.pi * lat2 / 180
+        theta = lon1 - lon2
+        radtheta = math.pi * theta / 180
+        dist = math.sin(radlat1) * math.sin(radlat2) + math.cos(radlat1) * math.cos(radlat2) * math.cos(radtheta)
+        if dist > 1:
+            dist = 1
+        dist = math.acos(dist)
+        dist = dist * 180 / math.pi
+        dist = dist * 60 * 1.1515
+        dist = dist * 1.609344
+        return dist
