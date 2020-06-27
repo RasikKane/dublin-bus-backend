@@ -10,6 +10,9 @@ GOOGLE_MAPS_KEY = "AIzaSyCv4Jkj6OMUVN0swxdIzZMOYu1vaddkooY"
 class GoogleMapsAutocomplete(APIView):
 
     def get(self, request):
+
+        searched_bus_stops = BusStops.objects.filter(stop_name__icontains=request.query_params.get('query'))
+
         # Get response from Google
         response = requests.get(url="https://maps.googleapis.com/maps/api/place/autocomplete/json",
                                 params={'input': request.query_params.get('query'),
@@ -17,8 +20,15 @@ class GoogleMapsAutocomplete(APIView):
                                         'location': '53.357841,-6.251557', 'radius': 2000}).json()
         # Create JSON response
         payload = []
+
+        for searched_bus_stop in searched_bus_stops:
+            content = {'title': searched_bus_stop.stop_name + " (" + str(searched_bus_stop.stop_id) + ")",
+                       'id': searched_bus_stop.stop_id, 'fromDB': True, 'stop_lat': searched_bus_stop.stop_lat,
+                       'stop_lng': searched_bus_stop.stop_lng}
+            payload.append(content)
+
         for result in response['predictions']:
-            content = {'title': result['description'], 'id': result['place_id']}
+            content = {'title': result['description'], 'id': result['place_id'], 'fromDB': False}
             payload.append(content)
 
         return JsonResponse(payload, safe=False)
