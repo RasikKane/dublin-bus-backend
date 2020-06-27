@@ -43,7 +43,8 @@ INSTALLED_APPS = [
 
     # Custom classes
     'user_auth.apps.UserAuthConfig',
-    'google_maps.apps.GoogleMapsConfig'
+    'google_maps.apps.GoogleMapsConfig',
+    'bus_stops.apps.BusStopsConfig'
 ]
 
 REST_FRAMEWORK = {
@@ -95,7 +96,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dublin_bus',
         'USER': 'root',
-        'PASSWORD': 'Test@123',
+        'PASSWORD': 'localhost',
         'HOST': 'localhost',
         'PORT': '3306',
         'charset': 'utf8'
