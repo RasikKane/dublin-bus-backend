@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     # Custom classes
     'user_auth.apps.UserAuthConfig',
     'google_maps.apps.GoogleMapsConfig',
-    'bus_stops.apps.BusStopsConfig'
+    'bus_stops.apps.BusStopsConfig',
+    'stops_routes.apps.StopsRoutesConfig'
 ]
 
 REST_FRAMEWORK = {
