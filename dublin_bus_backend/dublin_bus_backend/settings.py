@@ -45,7 +45,9 @@ INSTALLED_APPS = [
     'user_auth.apps.UserAuthConfig',
     'google_maps.apps.GoogleMapsConfig',
     'bus_stops.apps.BusStopsConfig',
-    'stops_routes.apps.StopsRoutesConfig'
+    'stops_routes.apps.StopsRoutesConfig',
+    'line_prognumber.apps.LinePrognumberConfig',
+    'line_routeid.apps.LineRouteidConfig'
 ]
 
 REST_FRAMEWORK = {
@@ -97,7 +99,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dublin_bus',
         'USER': 'root',
-        'PASSWORD': 'Test@123',
+        'PASSWORD': 'localhost',
         'HOST': 'localhost',
         'PORT': '3306',
         'charset': 'utf8'
