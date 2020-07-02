@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 import requests
 import math
 from bus_stops.models import BusStops
+from stops_routes.models import StopsRoutes
 
 GOOGLE_MAPS_KEY = "AIzaSyCv4Jkj6OMUVN0swxdIzZMOYu1vaddkooY"
 
@@ -22,9 +23,15 @@ class GoogleMapsAutocomplete(APIView):
         payload = []
 
         for searched_bus_stop in searched_bus_stops:
+
+            # Getting all the bus no and direction for stop
+            all_bus_numbers = []
+            for bus in StopsRoutes.objects.filter(stop_id=searched_bus_stop.stop_id):
+                all_bus_numbers.append({'direction': bus.direction, 'bus_number': bus.route})
+
             content = {'title': searched_bus_stop.stop_name + " (" + str(searched_bus_stop.stop_id) + ")",
                        'id': searched_bus_stop.stop_id, 'fromDB': True, 'stop_lat': searched_bus_stop.stop_lat,
-                       'stop_lng': searched_bus_stop.stop_lng}
+                       'stop_lng': searched_bus_stop.stop_lng, 'all_bus_numbers': all_bus_numbers}
             payload.append(content)
 
         for result in response['predictions']:
@@ -51,9 +58,14 @@ class GoogleMapsGetPlaceByID(APIView):
         for bus_stop in all_bus_stops:
             if self.calculate_distance(float(content['lat']), float(content['lng']), float(bus_stop.stop_lat),
                                        float(bus_stop.stop_lng)) <= 0.5:
+                # Getting all the bus no and direction for stop
+                all_bus_numbers = []
+                for bus in StopsRoutes.objects.filter(stop_id=bus_stop.stop_id):
+                    all_bus_numbers.append({'direction': bus.direction, 'bus_number': bus.route})
+
                 stop_details = {'stop_id': bus_stop.stop_id, 'stop_name': bus_stop.stop_name,
                                 'stop_lat': bus_stop.stop_lat,
-                                'stop_lng': bus_stop.stop_lng}
+                                'stop_lng': bus_stop.stop_lng, 'all_bus_numbers': all_bus_numbers}
                 payload.append(stop_details)
 
         return JsonResponse(payload, safe=False)
