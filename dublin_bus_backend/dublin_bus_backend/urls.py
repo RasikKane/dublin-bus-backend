@@ -20,4 +20,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('user_auth.urls')),
     path('api/', include('google_maps.urls')),
+    path('api/', include('stops_routes.urls')),
 ]
