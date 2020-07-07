@@ -70,6 +70,8 @@ class GoogleMapsGetPlaceByID(APIView):
 
         return JsonResponse(payload, safe=False)
 
+    # Reference: https://stackoverflow.com/questions/51819224/
+    # how-to-find-nearest-location-using-latitude-and-longitude-from-a-json-data
     def calculate_distance(self, lat1, lon1, lat2, lon2):
         radlat1 = math.pi * lat1 / 180
         radlat2 = math.pi * lat2 / 180
