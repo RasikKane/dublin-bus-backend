@@ -7,6 +7,7 @@ from stops_routes.models import StopsRoutes
 class RoutesPerBusNumber(APIView):
 
     def get(self, request):
+
         # Getting source prog no
         source_prog_number = StopsRoutes.objects.get(stop_id=request.query_params.get('stop_id'),
                                                      route=request.query_params.get('bus_number'),
@@ -16,19 +17,34 @@ class RoutesPerBusNumber(APIView):
         end_prog_number = LinesPrognumbers.objects.get(line_id=request.query_params.get('bus_number'),
                                                        direction=request.query_params.get('direction'))
 
-        # Checking the small/large prog no
-        if source_prog_number.program_number < end_prog_number.last_program_number:
-            all_stops = StopsRoutes.objects.filter(route=request.query_params.get('bus_number'),
-                                                   direction=request.query_params.get('direction'),
-                                                   program_number__range=(source_prog_number.program_number,
-                                                                          end_prog_number.last_program_number)
-                                                   ).order_by('program_number')
+        if request.query_params.get('is_destination_toggled') == "false":
+            # Checking the small/large prog no
+            if source_prog_number.program_number < end_prog_number.last_program_number:
+                all_stops = StopsRoutes.objects.filter(route=request.query_params.get('bus_number'),
+                                                       direction=request.query_params.get('direction'),
+                                                       program_number__range=(source_prog_number.program_number,
+                                                                              end_prog_number.last_program_number)
+                                                       ).order_by('program_number')
+            else:
+                all_stops = StopsRoutes.objects.filter(route=request.query_params.get('bus_number'),
+                                                       direction=request.query_params.get('direction'),
+                                                       program_number__range=(end_prog_number.last_program_number,
+                                                                              source_prog_number.program_number)
+                                                       ).order_by('program_number')
         else:
-            all_stops = StopsRoutes.objects.filter(route=request.query_params.get('bus_number'),
-                                                   direction=request.query_params.get('direction'),
-                                                   program_number__range=(end_prog_number.last_program_number,
-                                                                          source_prog_number.program_number)
-                                                   ).order_by('program_number')
+            # Checking the small/large prog no
+            if source_prog_number.program_number < end_prog_number.first_program_number:
+                all_stops = StopsRoutes.objects.filter(route=request.query_params.get('bus_number'),
+                                                       direction=request.query_params.get('direction'),
+                                                       program_number__range=(source_prog_number.program_number,
+                                                                              end_prog_number.first_program_number)
+                                                       ).order_by('-program_number')
+            else:
+                all_stops = StopsRoutes.objects.filter(route=request.query_params.get('bus_number'),
+                                                       direction=request.query_params.get('direction'),
+                                                       program_number__range=(end_prog_number.first_program_number,
+                                                                              source_prog_number.program_number)
+                                                       ).order_by('-program_number')
 
         # Create JSON response
         payload = []
