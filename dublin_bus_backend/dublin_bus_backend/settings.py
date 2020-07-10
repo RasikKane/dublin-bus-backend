@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'bus_stops.apps.BusStopsConfig',
     'stops_routes.apps.StopsRoutesConfig',
     'line_prognumber.apps.LinePrognumberConfig',
-    'line_routeid.apps.LineRouteidConfig'
+    'line_routeid.apps.LineRouteidConfig',
+    'routes_history.apps.RoutesHistoryConfig'
 ]
 
 REST_FRAMEWORK = {
