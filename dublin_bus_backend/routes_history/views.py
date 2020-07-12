@@ -14,7 +14,7 @@ class LatestUserRoutes(APIView):
     def get(self, request, user_id):
 
         # Get latest 5 routes
-        latest_routes = RoutesHistory.objects.filter(user_id=user_id).order_by('-date_updated')[:5]
+        latest_routes = RoutesHistory.objects.filter(user_id=user_id).order_by('-date_updated')[:3]
 
         # Create JSON response
         payload = []
