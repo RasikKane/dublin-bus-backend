@@ -24,6 +24,7 @@ SECRET_KEY = 's0g27=*gh6=m*_4(_#-ki07-t3-*+b4!yah!alkb=ra-_%*$cw'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# ALLOWED_HOSTS = ['*']
 ALLOWED_HOSTS = []
 
 # Application definition
@@ -47,7 +48,8 @@ INSTALLED_APPS = [
     'bus_stops.apps.BusStopsConfig',
     'stops_routes.apps.StopsRoutesConfig',
     'line_prognumber.apps.LinePrognumberConfig',
-    'line_routeid.apps.LineRouteidConfig'
+    'line_routeid.apps.LineRouteidConfig',
+    'routes_history.apps.RoutesHistoryConfig'
 ]
 
 REST_FRAMEWORK = {
@@ -67,6 +69,8 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware'
 ]
 
+# CORS_ORIGIN_ALLOW_ALL=True
+# CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000',
 ]

@@ -21,4 +21,5 @@ urlpatterns = [
     path('api/', include('user_auth.urls')),
     path('api/', include('google_maps.urls')),
     path('api/', include('stops_routes.urls')),
+    path('api/', include('routes_history.urls')),
 ]
