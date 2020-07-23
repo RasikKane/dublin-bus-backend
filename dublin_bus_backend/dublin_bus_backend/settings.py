@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'stops_routes.apps.StopsRoutesConfig',
     'line_prognumber.apps.LinePrognumberConfig',
     'line_routeid.apps.LineRouteidConfig',
-    'routes_history.apps.RoutesHistoryConfig'
+    'routes_history.apps.RoutesHistoryConfig',
+    'timetable.apps.TimetableConfig'
 ]
 
 REST_FRAMEWORK = {
@@ -103,7 +104,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dublin_bus',
         'USER': 'root',
-        'PASSWORD': 'Test@123',
+        'PASSWORD': 'localhost',
         'HOST': 'localhost',
         'PORT': '3306',
         'charset': 'utf8'
