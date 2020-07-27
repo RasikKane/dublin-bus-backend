@@ -13,3 +13,4 @@ class timetable(models.Model):
         managed = True
         db_table = 'timetable'
         unique_together = (('line_id', 'direction', 'program_number', 'planned_arrival', 'stop_id'),)
+        indexes = [models.Index(fields=['stop_id', 'line_id', 'direction', 'program_number', 'planned_arrival']),]

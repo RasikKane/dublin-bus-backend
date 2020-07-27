@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'line_prognumber.apps.LinePrognumberConfig',
     'line_routeid.apps.LineRouteidConfig',
     'routes_history.apps.RoutesHistoryConfig',
-    'timetable.apps.TimetableConfig'
+    'timetable.apps.TimetableConfig',
+    'weather.apps.WeatherConfig'
 ]
 
 REST_FRAMEWORK = {

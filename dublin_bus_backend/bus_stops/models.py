@@ -10,3 +10,4 @@ class BusStops(models.Model):
 
     class Meta:
         db_table = 'bus_stops'
+        indexes = [models.Index(fields=['stop_id', 'stop_name', 'stop_lat', 'stop_lng']),]

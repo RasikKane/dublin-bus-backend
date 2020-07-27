@@ -12,3 +12,4 @@ class LinesPrognumbers(models.Model):
         managed = True
         db_table = 'lines_prognumbers'
         unique_together = (('line_id', 'direction'),)
+        indexes = [models.Index(fields=['line_id', 'direction', 'first_program_number', 'last_program_number']),]

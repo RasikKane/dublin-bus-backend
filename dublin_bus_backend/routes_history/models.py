@@ -17,3 +17,6 @@ class RoutesHistory(models.Model):
 
     class Meta:
         db_table = 'routes_history'
+        indexes = [models.Index(fields=['user_id', 'route', 'direction', 'start_stop_id', 'start_program_number',
+                                        'dest_stop_id', 'dest_program_number', 'date_created', 'date_updated']),]
+
