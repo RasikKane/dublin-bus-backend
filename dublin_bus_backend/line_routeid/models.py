@@ -11,3 +11,4 @@ class LinesRouteID(models.Model):
         managed = True
         db_table = 'lines_routeids'
         unique_together = (('line_id', 'direction'),)
+        indexes = [models.Index(fields=['direction', 'line_id', 'route_id']),]
