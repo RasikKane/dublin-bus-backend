@@ -1,15 +1,20 @@
 from django.http import JsonResponse
+from django.contrib.admin.utils import flatten
+from django.utils import dateparse
+from django.db import IntegrityError
 from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 from timetable.models import timetable
 from stops_routes.models import StopsRoutes
 from weather.models import Weather
+from routes_history.models import RoutesHistory
+from bus_stops.models import BusStops
 import pandas as pd
 import pickle
-from django.contrib.admin.utils import flatten
-from django.utils import dateparse
 from math import ceil
-from routes_history.models import RoutesHistory
-from numpy import concatenate, rint
+from numpy import concatenate
+import csv
 
 
 # from rest_framework.response import Response
@@ -31,68 +36,58 @@ class PredictArrivalTime(APIView):
         dt_in = dateparse.parse_datetime(str(request.data.get('datetime_input')))
         # date, hr_date : used for extracting weather parameters for next 3 hours from supplies hr_date on given date
         date, hr_date = str(dt_in.date()), dt_in.hour
-        # year, month, day_of_week, quarter,tArr : features in prediction model input
-        year, month, day_of_week, quarter = dt_in.year, dt_in.month, dt_in.weekday(), int(ceil(dt_in.month / 3.))
+        # month, day_of_week, quarter,tArr : features in prediction model input
+        month, day_of_week, quarter = dt_in.month, dt_in.weekday(), int(ceil(dt_in.month / 3.))
         tArr = dt_in.second + dt_in.minute * 60 + hr_date * 3600
 
         # temporary variables for testing
-        year, month, quarter = 2018, 1, 1
+        month, quarter = 1, 1
         date = "2018-01-01"
 
         # Obtain weather data for uptill 3 hours from given hour for fields : [feels_like,wind_speed, weather_id]
         # No dublin bus ride exceeds 3 hour planned journey, hence 3 entries from given input hour are selected
-        weather = Weather.objects.filter(date_entry=date,
-                                         hour_Day__range=(hr_date, hr_date + 3)
-                                         ).order_by('hour_Day').values('feels_like', 'wind_speed', 'weather_id')
+        weather = Weather.objects.filter(date_weather=date,
+                                         hour_of_day__range=(hr_date, hr_date + 3)
+                                         ).order_by('hour_of_day').values('feels_like', 'wind_speed', 'weather_id')
 
         # Check if request is from recent routes or not.
         flag_recentRoute = request.data.get('isFromRecentRoutes')
         if not flag_recentRoute:
             start_program_number, dest_program_number = sorted([request.data.get('start_program_number'),
                                                                 request.data.get('dest_program_number')])
+            line = request.data.get('route')
+            direction = request.data.get('direction')
 
-            stops_prog = StopsRoutes.objects.filter(route=request.data.get('route'),
-                                                    direction=request.data.get('direction'),
-                                                    program_number__range=(start_program_number,
-                                                                           dest_program_number)
-                                                    ).order_by('program_number')
-
-            # Generate  query set for combination of LINEID - DIRECTION
-            line_direction = timetable.objects.filter(line_id=request.data.get('route'),
-                                                      direction=request.data.get('direction'),
-                                                      planned_arrival__gt=tArr
-                                                      ).order_by('planned_arrival').values('stop_id', 'line_id',
-                                                                                           'direction',
-                                                                                           'program_number',
-                                                                                           'planned_arrival')
         else:
             # Get history
             route = RoutesHistory.objects.get(id=request.data.get('id'))
             start_program_number, dest_program_number = sorted([route.start_program_number, route.dest_program_number])
+            line = route.route
+            direction = route.direction
 
-            stops_prog = StopsRoutes.objects.filter(route=route.route,
-                                                    direction=route.direction,
-                                                    program_number__range=(start_program_number,
-                                                                           dest_program_number)
-                                                    ).order_by('program_number')
+        stops_prog = StopsRoutes.objects.filter(route=line,
+                                                direction=direction,
+                                                program_number__range=(start_program_number,
+                                                                       dest_program_number)
+                                                ).order_by('program_number')
 
-            # Generate pandas dataframe from query set for combination of LINEID - DIRECTION
-            line_direction = timetable.objects.filter(line_id=route.route,
-                                                      direction=route.direction,
-                                                      planned_arrival__gt=tArr
-                                                      ).order_by('planned_arrival').values('stop_id', 'line_id',
-                                                                                           'direction',
-                                                                                           'program_number',
-                                                                                           'planned_arrival')
+        # Generate  query set for combination of LINEID - DIRECTION
+        line_direction = timetable.objects.filter(line_id=line,
+                                                  direction=direction,
+                                                  planned_arrival__gt=tArr
+                                                  ).order_by('planned_arrival').values('stop_id', 'line_id',
+                                                                                       'direction',
+                                                                                       'program_number',
+                                                                                       'planned_arrival')
 
         # dataframe for bus timetable
         df_line_direction = pd.DataFrame.from_records(line_direction)
 
         # input dataframe to model
         df_X = pd.DataFrame(
-            columns=['year', 'month', 'dayofweek_num', 'quarter', 'PROGRNUMBER', 'STOPPOINTID', 'PLANNEDTIME_ARR',
+            columns=['month', 'dayofweek_num', 'quarter', 'PROGRNUMBER', 'STOPPOINTID', 'PLANNEDTIME_ARR',
                      'feels_like', 'wind_speed', 'weather_id'])
-        convert_dict = {'year': 'int', 'month': 'int', 'dayofweek_num': 'int', 'quarter': 'int',
+        convert_dict = {'month': 'int', 'dayofweek_num': 'int', 'quarter': 'int',
                         'PROGRNUMBER': 'int', 'STOPPOINTID': 'int', 'PLANNEDTIME_ARR': 'int',
                         'feels_like': 'float', 'wind_speed': 'float', 'weather_id': 'int'
                         }
@@ -107,8 +102,8 @@ class PredictArrivalTime(APIView):
             TIME_ARR = next(TIME_ARR for TIME_ARR in list_timeArr if TIME_ARR > tArr)
 
             # Append tuple to dataframe
-            df_X.loc[len(df_X)] = [year, month, day_of_week, quarter, progr_number, stop, TIME_ARR,
-                                   *weather.get(hour_Day=int(TIME_ARR / 3600)).values()]
+            df_X.loc[len(df_X)] = [month, day_of_week, quarter, progr_number, stop, TIME_ARR,
+                                   *weather.get(hour_of_day=int(TIME_ARR / 3600)).values()]
 
             # Assign TIME_ARR of present stop to tArr; this is base time for calculating PLANNEDTIME_ARR of next stop
             tArr = TIME_ARR
@@ -117,11 +112,7 @@ class PredictArrivalTime(APIView):
         df_X = df_X.astype(convert_dict)
 
         # Fetch prediction model
-        if not flag_recentRoute:
-            filename = "./models/" + str(request.data.get('route')) + "_" +\
-                       str(request.data.get('direction')) + ".pkl"
-        else:
-            filename = "./models/" + str(route.route) + "_" + str(route.direction) + ".pkl"
+        filename = "./models/" + str(line) + "_" + str(direction) + ".pkl"
 
         model = pickle.load(open(filename, 'rb'))
         prediction = model.predict(df_X)
@@ -148,6 +139,46 @@ class PredictArrivalTime(APIView):
             payload.append(stop_details)
 
         return JsonResponse(payload, safe=False)
+
+
+# class TimetableDB(APIView):
+#     def get(self, request):
+#         with open(request.data.get('timetableCSV')) as f:
+#             print(request.data.get('timetableCSV'))
+#             reader = csv.reader(f)
+#             next(reader)
+#             for row in reader:
+#                 _, created = timetable.objects.get_or_create(
+#                     line_id=row[0],
+#                     direction=row[1],
+#                     stop_id=row[2],
+#                     program_number=row[3],
+#                     planned_arrival=row[4]
+#                 )
+#             return Response({"message": "Data entry for TIMETABLE successful"}, status=status.HTTP_200_OK)
+
+
+class TimetableDB(APIView):
+    def get(self, request):
+        try:
+            with open(request.data.get('timetableCSV')) as f:
+                print(request.data.get('timetableCSV'))
+                reader = csv.reader(f)
+                next(reader)
+                for row in reader:
+                    try:
+                        _, created = timetable.objects.get_or_create(
+                            line_id=row[0],
+                            direction=row[1],
+                            stop_id=BusStops.objects.get(stop_id=row[2]),
+                            program_number=row[3],
+                            planned_arrival=row[4]
+                        )
+                    except IntegrityError:
+                        continue
+            return Response({"message": "Data entry for TIMETABLE successful"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"Error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 # class PredictArrivalTime(APIView):
 #
@@ -225,3 +256,5 @@ class PredictArrivalTime(APIView):
 #                 payload.append(stop_details)
 #
 #             return JsonResponse(payload, safe=False)
+
+
