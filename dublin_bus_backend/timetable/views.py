@@ -41,13 +41,13 @@ class PredictArrivalTime(APIView):
         tArr = dt_in.second + dt_in.minute * 60 + hr_date * 3600
 
         # temporary variables for testing
-        month, quarter = 1, 1
+        # month, quarter = 1, 1
         date = "2018-01-01"
 
         # Obtain weather data for uptill 3 hours from given hour for fields : [feels_like,wind_speed, weather_id]
         # No dublin bus ride exceeds 3 hour planned journey, hence 3 entries from given input hour are selected
         weather = Weather.objects.filter(date_weather=date,
-                                         hour_of_day__range=(hr_date, hr_date + 3)
+                                         hour_of_day__range=(hr_date,26)
                                          ).order_by('hour_of_day').values('feels_like', 'wind_speed', 'weather_id')
 
         # Check if request is from recent routes or not.
@@ -100,7 +100,6 @@ class PredictArrivalTime(APIView):
         for stop, progr_number in zip(stops_list, progr_list):
             list_timeArr = sorted(df_line_direction.query('stop_id == @stop')['planned_arrival'].to_list())
             TIME_ARR = next(TIME_ARR for TIME_ARR in list_timeArr if TIME_ARR > tArr)
-
             # Append tuple to dataframe
             df_X.loc[len(df_X)] = [month, day_of_week, quarter, progr_number, stop, TIME_ARR,
                                    *weather.get(hour_of_day=int(TIME_ARR / 3600)).values()]
@@ -110,7 +109,6 @@ class PredictArrivalTime(APIView):
 
         # Typecast dataframe
         df_X = df_X.astype(convert_dict)
-
         # Fetch prediction model
         filename = "./models/" + str(line) + "_" + str(direction) + ".pkl"
 
@@ -139,23 +137,6 @@ class PredictArrivalTime(APIView):
             payload.append(stop_details)
 
         return JsonResponse(payload, safe=False)
-
-
-# class TimetableDB(APIView):
-#     def get(self, request):
-#         with open(request.data.get('timetableCSV')) as f:
-#             print(request.data.get('timetableCSV'))
-#             reader = csv.reader(f)
-#             next(reader)
-#             for row in reader:
-#                 _, created = timetable.objects.get_or_create(
-#                     line_id=row[0],
-#                     direction=row[1],
-#                     stop_id=row[2],
-#                     program_number=row[3],
-#                     planned_arrival=row[4]
-#                 )
-#             return Response({"message": "Data entry for TIMETABLE successful"}, status=status.HTTP_200_OK)
 
 
 class TimetableDB(APIView):
