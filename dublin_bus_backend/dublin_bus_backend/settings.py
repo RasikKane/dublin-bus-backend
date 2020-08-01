@@ -148,6 +148,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# Reference: https://mattsegal.dev/file-logging-django.html
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
