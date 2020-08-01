@@ -1,6 +1,10 @@
 import requests
 from weather.models import Weather
 from datetime import datetime, timedelta
+import logging
+
+# Create a logger for this file
+logger = logging.getLogger(__file__)
 
 # Open Weather API URL
 WEATHER_URL = "http://api.openweathermap.org/data/2.5/forecast"
@@ -28,6 +32,7 @@ def save_update_weather_data(date_weather, hour_of_day, feels_like, wind_speed, 
 
 def weather_cron_job():
     try:
+        logger.info("Running schedular")
         # Make API request to Open Weather and get response in JSON
         response = requests.get(url=WEATHER_URL, params=WEATHER_PARAMS).json()
 
@@ -59,7 +64,6 @@ def weather_cron_job():
 
                     # for last entry in cron job; we need additional 3 hour data; same data for last hr is repeated
                     if count == len_list:
-                        print("count == len_list")
                         for i in range(3):
                             hour_of_day = hour_of_day + 1
                             # Save in db
@@ -78,8 +82,6 @@ def weather_cron_job():
                                                  temperature_min, temperature_max, humidity, weather_main,
                                                  weather_description)
                 except Exception as e:
-                    # print('exception in weather_cron_job for loop', e)
-                    pass
+                    logger.exception('exception in weather_cron_job for loop', e)
     except Exception as e:
-        # print('exception in weather_cron_job', e)
-        pass
+        logger.exception('exception in weather_cron_job', e)
