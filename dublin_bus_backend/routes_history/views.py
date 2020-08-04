@@ -66,13 +66,13 @@ class LatestUserRoutes(APIView):
                 old_route = RoutesHistory.objects.get(start_stop_id=request.data.get('start_stop_id'),
                                                       dest_stop_id=request.data.get('dest_stop_id'),
                                                       user_id=request.data.get('user_id'))
-                if not old_route.exists():
+                if not old_route.DoesNotExist:
                     raise ObjectDoesNotExist
             except ObjectDoesNotExist:
                 logger.exception('exception in route_history view : RoutesHistory object query old_route is empty')
-                return Response({"Error: old_route history not available"}, status=status.HTTP_204_NO_CONTENT)
-                # return Response({"Error: old route history not available"},
-                #                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                # return Response({"Error: old_route history not available"}, status=status.HTTP_204_NO_CONTENT)
+                return Response({"Error: old route history not available"},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             except Exception as e:
                 logger.exception('exception in route_history view RoutesHistory object', e)
                 return Response({"Error: In route_history - query set"},
@@ -108,7 +108,8 @@ class LatestWaypointsBetweenUserRoutes(APIView):
                 raise ObjectDoesNotExist
         except ObjectDoesNotExist:
             logger.exception('exception in routes_history view : stops_routes object queryset all_stops is empty')
-            return Response({"Error: Bus record not available"}, status=status.HTTP_204_NO_CONTENT)
+            # return Response({"Error: Bus record not available"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"Error: Bus record not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             logger.exception('exception in route_history view stops_routes object', e)
             return Response({"Error: In route_history - stops_routes query set"},
