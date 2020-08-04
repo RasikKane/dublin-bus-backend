@@ -1,4 +1,6 @@
 import requests
+from rest_framework.response import Response
+from rest_framework import status
 from weather.models import Weather
 from datetime import datetime, timedelta
 import logging
@@ -14,20 +16,27 @@ WEATHER_PARAMS = {'appid': "0b877c10f2c8044a1668be4f89c01784", 'id': '2964574'}
 def save_update_weather_data(date_weather, hour_of_day, feels_like, wind_speed, weather_id, temperature,
                              temperature_min, temperature_max, humidity, weather_main,
                              weather_description):
-    obj, created = Weather.objects.update_or_create(
-        date_weather=date_weather, hour_of_day=hour_of_day,
-        defaults={
-            'feels_like': feels_like,
-            'wind_speed': wind_speed,
-            'weather_id': weather_id,
-            'temp': temperature,
-            'temp_min': temperature_min,
-            'temp_max': temperature_max,
-            'humidity': humidity,
-            'weather_main': weather_main,
-            'weather_description': weather_description
-        },
-    )
+    try:
+        obj, created = Weather.objects.update_or_create(
+            date_weather=date_weather, hour_of_day=hour_of_day,
+            defaults={
+                'feels_like': feels_like,
+                'wind_speed': wind_speed,
+                'weather_id': weather_id,
+                'temp': temperature,
+                'temp_min': temperature_min,
+                'temp_max': temperature_max,
+                'humidity': humidity,
+                'weather_main': weather_main,
+                'weather_description': weather_description
+            },
+        )
+
+    # reference for deciding status code : stack-overflow
+    # https://stackoverflow.com/questions/3290182/rest-http-status-codes-for-failed-validation-or-invalid-duplicate
+    except Exception as e:
+        logger.exception('exception in weather view Weather object', e)
+        return Response({"Error: update_or_create"}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 def weather_cron_job():

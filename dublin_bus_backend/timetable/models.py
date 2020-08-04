@@ -2,7 +2,7 @@ from django.db import models
 
 
 # Create your models here.
-class timetable(models.Model):
+class Timetable(models.Model):
     stop_id = models.ForeignKey('bus_stops.BusStops', db_column='stop_id', on_delete=models.PROTECT)
     line_id = models.CharField(max_length=10, blank=False)
     direction = models.IntegerField(blank=False)

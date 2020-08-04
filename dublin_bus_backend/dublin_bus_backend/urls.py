@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/', include('stops_routes.urls')),
     path('api/', include('routes_history.urls')),
     path('api/', include('timetable.urls')),
+    path('api/', include('weather.urls')),
 ]
