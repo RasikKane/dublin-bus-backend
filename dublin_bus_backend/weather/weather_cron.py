@@ -1,6 +1,6 @@
 import requests
-from rest_framework.response import Response
-from rest_framework import status
+# from rest_framework.response import Response
+# from rest_framework import status
 from weather.models import Weather
 from datetime import datetime, timedelta
 import logging
@@ -36,7 +36,7 @@ def save_update_weather_data(date_weather, hour_of_day, feels_like, wind_speed, 
     # https://stackoverflow.com/questions/3290182/rest-http-status-codes-for-failed-validation-or-invalid-duplicate
     except Exception as e:
         logger.exception('exception in weather view Weather object', e)
-        return Response({"Error: update_or_create"}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        # return Response({"Error: update_or_create"}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 def weather_cron_job():

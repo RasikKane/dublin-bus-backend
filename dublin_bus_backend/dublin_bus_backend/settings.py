@@ -105,7 +105,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dublin_bus',
         'USER': 'root',
-        'PASSWORD': 'localhost',
+        'PASSWORD': 'Test@123',
         'HOST': 'localhost',
         'PORT': '3306',
         'charset': 'utf8'
