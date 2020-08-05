@@ -50,7 +50,7 @@ class PredictArrivalTime(APIView):
 
         # temporary variables for testing
         # month, quarter = 1, 1
-        date = "2018-01-01"
+        # date = "2018-01-01"
 
         # Obtain weather data for remaining hours from given hour for fields : [feels_like,wind_speed, weather_id]
         try:
