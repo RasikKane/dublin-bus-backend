@@ -24,22 +24,51 @@ class RoutesPerBusNumber(APIView):
             end_prog_number = LinesPrognumbers.objects.get(line_id=request.query_params.get('bus_number'),
                                                            direction=request.query_params.get('direction'))
 
-            start_program_number, dest_program_number = sorted([source_prog_number.program_number,
-                                                                end_prog_number.last_program_number])
+            # start_program_number, dest_program_number = sorted([source_prog_number.program_number,
+            #                                                     end_prog_number.last_program_number])
+
+            # if request.query_params.get('is_destination_toggled') == "false":
+            #     all_stops = StopsRoutes.objects.filter(route=request.query_params.get('bus_number'),
+            #                                            direction=request.query_params.get('direction'),
+            #                                            program_number__range=(start_program_number,
+            #                                                                   dest_program_number)
+            #                                            ).order_by('program_number')
+            #
+            # else:
+            #     all_stops = StopsRoutes.objects.filter(route=request.query_params.get('bus_number'),
+            #                                            direction=request.query_params.get('direction'),
+            #                                            program_number__range=(start_program_number,
+            #                                                                   dest_program_number)
+            #                                            ).order_by('-program_number')
 
             if request.query_params.get('is_destination_toggled') == "false":
-                all_stops = StopsRoutes.objects.filter(route=request.query_params.get('bus_number'),
-                                                       direction=request.query_params.get('direction'),
-                                                       program_number__range=(start_program_number,
-                                                                              dest_program_number)
-                                                       ).order_by('program_number')
-
+                # Checking the small/large prog no
+                if source_prog_number.program_number < end_prog_number.last_program_number:
+                    all_stops = StopsRoutes.objects.filter(route=request.query_params.get('bus_number'),
+                                                           direction=request.query_params.get('direction'),
+                                                           program_number__range=(source_prog_number.program_number,
+                                                                                  end_prog_number.last_program_number)
+                                                           ).order_by('program_number')
+                else:
+                    all_stops = StopsRoutes.objects.filter(route=request.query_params.get('bus_number'),
+                                                           direction=request.query_params.get('direction'),
+                                                           program_number__range=(end_prog_number.last_program_number,
+                                                                                  source_prog_number.program_number)
+                                                           ).order_by('program_number')
             else:
-                all_stops = StopsRoutes.objects.filter(route=request.query_params.get('bus_number'),
-                                                       direction=request.query_params.get('direction'),
-                                                       program_number__range=(start_program_number,
-                                                                              dest_program_number)
-                                                       ).order_by('-program_number')
+                # Checking the small/large prog no
+                if source_prog_number.program_number < end_prog_number.first_program_number:
+                    all_stops = StopsRoutes.objects.filter(route=request.query_params.get('bus_number'),
+                                                           direction=request.query_params.get('direction'),
+                                                           program_number__range=(source_prog_number.program_number,
+                                                                                  end_prog_number.first_program_number)
+                                                           ).order_by('-program_number')
+                else:
+                    all_stops = StopsRoutes.objects.filter(route=request.query_params.get('bus_number'),
+                                                           direction=request.query_params.get('direction'),
+                                                           program_number__range=(end_prog_number.first_program_number,
+                                                                                  source_prog_number.program_number)
+                                                           ).order_by('-program_number')
 
         except Exception as e:
             logger.exception('exception in stops_routes view StopsRoutes object', e)

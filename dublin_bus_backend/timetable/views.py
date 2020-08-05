@@ -50,7 +50,7 @@ class PredictArrivalTime(APIView):
 
         # temporary variables for testing
         # month, quarter = 1, 1
-        date = "2018-01-01"
+        # date = "2018-01-01"
 
         # Obtain weather data for remaining hours from given hour for fields : [feels_like,wind_speed, weather_id]
         try:
@@ -61,8 +61,8 @@ class PredictArrivalTime(APIView):
                 raise ObjectDoesNotExist
         except ObjectDoesNotExist:
             logger.exception('exception in timetable view : weather object queryset weather is empty')
-            return Response({"Error: weather not available"}, status=status.HTTP_204_NO_CONTENT)
-            # return Response({"Error: weather not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # return Response({"Error: weather not available"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"Error: weather not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             logger.exception('exception in timetable view weather object', e)
             return Response({"Error: weather data"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -81,8 +81,8 @@ class PredictArrivalTime(APIView):
                 route = RoutesHistory.objects.get(id=request.data.get('id'))
             except route.DoesNotExist:
                 logger.exception('exception in timetable view : RoutesHistory object queryset route is empty')
-                return Response({"Error: Bus record not available"}, status=status.HTTP_204_NO_CONTENT)
-                # return Response({"Error: Bus record not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                # return Response({"Error: Bus record not available"}, status=status.HTTP_204_NO_CONTENT)
+                return Response({"Error: Bus record not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             start_program_number, dest_program_number = sorted([route.start_program_number, route.dest_program_number])
             line = route.route
@@ -104,8 +104,8 @@ class PredictArrivalTime(APIView):
                 raise ObjectDoesNotExist
         except ObjectDoesNotExist:
             logger.exception('exception in timetable view : stops_routes object queryset stops_prog is empty')
-            return Response({"Error: Bus not available"}, status=status.HTTP_204_NO_CONTENT)
-            # return Response({"Error: Bus not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # return Response({"Error: Bus not available"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"Error: Bus not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             logger.exception('exception in timetable view stops_routes object', e)
             return Response({"Error: stops-routes query set"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -126,8 +126,8 @@ class PredictArrivalTime(APIView):
                              'Route: {}, Direction:{}, Time:{}'.format(str(line), str(direction),
                                                                        str(str(hr_date) + ":" + str(min_date)))
                              )
-            return Response({"Error: Bus Timetable not available"}, status=status.HTTP_204_NO_CONTENT)
-            # return Response({"Error: Bus not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # return Response({"Error: Bus Timetable not available"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"Error: Bus not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             logger.exception('exception in timetable view timetable object', e)
             return Response({"Error: timetable query set"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -138,7 +138,8 @@ class PredictArrivalTime(APIView):
             logger.exception('No bus scheduled in timetable : df_line_direction is empty. '
                              'Route: {}, Direction:{}, Time:{}'.format(str(line), str(direction),
                                                                        str(str(hr_date) + ":" + str(min_date))))
-            return Response({"Error: Bus not available"}, status=status.HTTP_204_NO_CONTENT)
+            # return Response({"Error: Bus not available"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"Error: Bus not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # schema for input dataframe to model
         df_X = pd.DataFrame(

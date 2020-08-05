@@ -18,7 +18,7 @@ class LatestUserRoutes(APIView):
 
     def get(self, request, user_id):
 
-        # Get latest 5 routes
+        # Get latest 3 routes
         try:
             latest_routes = RoutesHistory.objects.filter(user_id=user_id).order_by('-date_updated')[:3]
 
@@ -62,21 +62,21 @@ class LatestUserRoutes(APIView):
     def post(self, request):
         try:
             # Check if route exists
-            try:
-                old_route = RoutesHistory.objects.get(start_stop_id=request.data.get('start_stop_id'),
-                                                      dest_stop_id=request.data.get('dest_stop_id'),
-                                                      user_id=request.data.get('user_id'))
-                if not old_route.exists():
-                    raise ObjectDoesNotExist
-            except ObjectDoesNotExist:
-                logger.exception('exception in route_history view : RoutesHistory object query old_route is empty')
-                return Response({"Error: old_route history not available"}, status=status.HTTP_204_NO_CONTENT)
-                # return Response({"Error: old route history not available"},
-                #                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            except Exception as e:
-                logger.exception('exception in route_history view RoutesHistory object', e)
-                return Response({"Error: In route_history - query set"},
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # try:
+            old_route = RoutesHistory.objects.get(start_stop_id=request.data.get('start_stop_id'),
+                                                  dest_stop_id=request.data.get('dest_stop_id'),
+                                                  user_id=request.data.get('user_id'))
+            #     if not old_route.DoesNotExist:
+            #         raise ObjectDoesNotExist
+            # except ObjectDoesNotExist:
+            #     logger.exception('exception in route_history view : RoutesHistory object query old_route is empty')
+            #     # return Response({"Error: old_route history not available"}, status=status.HTTP_204_NO_CONTENT)
+            #     return Response({"Error: old route history not available"},
+            #                     status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # except Exception as e:
+            #     logger.exception('exception in route_history view RoutesHistory object', e)
+            #     return Response({"Error: In route_history - query set"},
+            #                     status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             # Update route
             serializer = RoutesHistorySerializer(old_route, data=request.data)
@@ -108,7 +108,8 @@ class LatestWaypointsBetweenUserRoutes(APIView):
                 raise ObjectDoesNotExist
         except ObjectDoesNotExist:
             logger.exception('exception in routes_history view : stops_routes object queryset all_stops is empty')
-            return Response({"Error: Bus record not available"}, status=status.HTTP_204_NO_CONTENT)
+            # return Response({"Error: Bus record not available"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"Error: Bus record not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             logger.exception('exception in route_history view stops_routes object', e)
             return Response({"Error: In route_history - stops_routes query set"},

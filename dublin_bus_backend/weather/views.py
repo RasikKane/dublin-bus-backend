@@ -47,7 +47,7 @@ class GetWeather(APIView):
 
         # temporary variables for testing
         # month, quarter = 1, 1
-        date = "2018-01-01"
+        # date = "2018-01-01"
 
         # Obtain weather data for remaining hours from given hour for fields : [feels_like,wind_speed, weather_id]
         try:
@@ -56,8 +56,8 @@ class GetWeather(APIView):
                                           )
         except weather.DoesNotExists:
             logger.exception('exception in weather view : Weather object queryset weather is empty')
-            return Response({"Error: weather not available"}, status=status.HTTP_204_NO_CONTENT)
-            # return Response({"Error: weather not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # return Response({"Error: weather not available"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"Error: weather not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             logger.exception('exception in weather view Weather object', e)
             return Response({"Error: weather data"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
