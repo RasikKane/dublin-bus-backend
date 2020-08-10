@@ -8,4 +8,5 @@
 .idea/vcs.xml
 dublin_bus_backend/dublin_bus_backend/__pycache__/
 dublin_bus_backend/user_auth/__pycache__/
+dublin_bus_backend/debug.log
 .idea

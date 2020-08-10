@@ -22,13 +22,21 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 's0g27=*gh6=m*_4(_#-ki07-t3-*+b4!yah!alkb=ra-_%*$cw'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-# ALLOWED_HOSTS = ['*']
-ALLOWED_HOSTS = []
+# For local
+# DEBUG = True
+# ALLOWED_HOSTS = []
+# CORS_ORIGIN_WHITELIST = [
+#     'http://localhost:3000',
+# ]
+
+# For production
+DEBUG = False
+ALLOWED_HOSTS = ['*']
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -49,7 +57,9 @@ INSTALLED_APPS = [
     'stops_routes.apps.StopsRoutesConfig',
     'line_prognumber.apps.LinePrognumberConfig',
     'line_routeid.apps.LineRouteidConfig',
-    'routes_history.apps.RoutesHistoryConfig'
+    'routes_history.apps.RoutesHistoryConfig',
+    'timetable.apps.TimetableConfig',
+    'weather.apps.WeatherConfig'
 ]
 
 REST_FRAMEWORK = {
@@ -67,12 +77,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware'
-]
-
-# CORS_ORIGIN_ALLOW_ALL=True
-# CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000',
 ]
 
 ROOT_URLCONF = 'dublin_bus_backend.urls'
@@ -103,7 +107,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dublin_bus',
         'USER': 'root',
-        'PASSWORD': 'Test@123',
+        # 'PASSWORD': 'Test@123',
+        'PASSWORD': 'dublin_bus_root',
         'HOST': 'localhost',
         'PORT': '3306',
         'charset': 'utf8'
@@ -145,3 +150,35 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Reference: https://mattsegal.dev/file-logging-django.html
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "root": {"level": "INFO", "handlers": ["file"]},
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            # 'filename': os.path.join(BASE_DIR, 'debug.log'),
+            'filename': "/home/student/backend/dublin-bus-backend/debug.log",
+            "formatter": "app",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": True
+        },
+    },
+    "formatters": {
+        "app": {
+            "format": (
+                u"%(asctime)s [%(levelname)-8s] "
+                "(%(module)s.%(funcName)s) %(message)s"
+            ),
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+    },
+}
