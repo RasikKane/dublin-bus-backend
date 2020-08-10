@@ -39,7 +39,7 @@ class PredictArrivalTime(APIView):
         dt_in = dateparse.parse_datetime(str(request.data.get('datetime_input')))
         if not isinstance(dt_in, datetime):
             logger.exception('invalid datetime_input')
-            return Response({"Error: date-time is no valid"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"Datetime format is not valid"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # date, hr_date : used for extracting weather parameters for next 3 hours from supplies hr_date on given date
         date, hr_date = str(dt_in.date()), dt_in.hour
@@ -61,11 +61,11 @@ class PredictArrivalTime(APIView):
                 raise ObjectDoesNotExist
         except ObjectDoesNotExist:
             logger.exception('exception in timetable view : weather object queryset weather is empty')
-            # return Response({"Error: weather not available"}, status=status.HTTP_204_NO_CONTENT)
-            return Response({"Error: weather not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # return Response({"Weather not available"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"Future weather not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             logger.exception('exception in timetable view weather object', e)
-            return Response({"Error: weather data"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"Future weather not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Check if request is from recent routes or not.
         flag_recentRoute = request.data.get('isFromRecentRoutes')
@@ -81,8 +81,8 @@ class PredictArrivalTime(APIView):
                 route = RoutesHistory.objects.get(id=request.data.get('id'))
             except route.DoesNotExist:
                 logger.exception('exception in timetable view : RoutesHistory object queryset route is empty')
-                # return Response({"Error: Bus record not available"}, status=status.HTTP_204_NO_CONTENT)
-                return Response({"Error: Bus record not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                # return Response({"Recent route not available"}, status=status.HTTP_204_NO_CONTENT)
+                return Response({"Recent route not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             start_program_number, dest_program_number = sorted([route.start_program_number, route.dest_program_number])
             line = route.route
@@ -104,11 +104,11 @@ class PredictArrivalTime(APIView):
                 raise ObjectDoesNotExist
         except ObjectDoesNotExist:
             logger.exception('exception in timetable view : stops_routes object queryset stops_prog is empty')
-            # return Response({"Error: Bus not available"}, status=status.HTTP_204_NO_CONTENT)
-            return Response({"Error: Bus not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # return Response({"Bus not available"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"Bus not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             logger.exception('exception in timetable view stops_routes object', e)
-            return Response({"Error: stops-routes query set"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"Bus not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Generate  query set for combination of LINEID - DIRECTION
         try:
@@ -126,11 +126,11 @@ class PredictArrivalTime(APIView):
                              'Route: {}, Direction:{}, Time:{}'.format(str(line), str(direction),
                                                                        str(str(hr_date) + ":" + str(min_date)))
                              )
-            # return Response({"Error: Bus Timetable not available"}, status=status.HTTP_204_NO_CONTENT)
-            return Response({"Error: Bus not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # return Response({"Bus Timetable not available"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"Bus not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             logger.exception('exception in timetable view timetable object', e)
-            return Response({"Error: timetable query set"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"Bus not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # dataframe for bus timetable
         df_line_direction = pd.DataFrame.from_records(line_direction)
@@ -138,8 +138,8 @@ class PredictArrivalTime(APIView):
             logger.exception('No bus scheduled in timetable : df_line_direction is empty. '
                              'Route: {}, Direction:{}, Time:{}'.format(str(line), str(direction),
                                                                        str(str(hr_date) + ":" + str(min_date))))
-            # return Response({"Error: Bus not available"}, status=status.HTTP_204_NO_CONTENT)
-            return Response({"Error: Bus not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # return Response({"Bus not available"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"Bus not available"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # schema for input dataframe to model
         df_X = pd.DataFrame(
@@ -162,7 +162,7 @@ class PredictArrivalTime(APIView):
                 tArr = TIME_ARR
         except Exception as e:
             logger.exception('exception in timetable view df_X preparation', e)
-            return Response({"Error: timetable data not available for df_X preparation"},
+            return Response({"Bus not available after given time"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Typecast dataframe
@@ -170,7 +170,7 @@ class PredictArrivalTime(APIView):
             df_X = df_X.astype(convert_dict)
         except Exception as e:
             logger.exception('exception in timetable view df_X type casting', e)
-            return Response({"Error: input dataframe in error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"Sorry! Something went wrong!"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Fetch prediction model
         filename = "./models/" + str(line) + "_" + str(direction) + ".pkl"
@@ -178,7 +178,7 @@ class PredictArrivalTime(APIView):
             model = pickle.load(open(filename, 'rb'))
         except Exception as e:
             logger.exception('exception while fetching model', e)
-            return Response({"Error: model not fetched"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"Sorry! Something went wrong!"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         try:
             prediction = model.predict(df_X)
@@ -188,7 +188,7 @@ class PredictArrivalTime(APIView):
             prediction.append(0)
         except Exception as e:
             logger.exception('exception during prediction', e)
-            return Response({"Error: prediction not generated"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"Sorry! Something went wrong!"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Define payload and return prediction response for each stop id
         payload = []
@@ -206,14 +206,14 @@ class PredictArrivalTime(APIView):
                 payload.append(stop_details)
         except Exception as e:
             logger.exception('exception in timetable view while JSON payload generation', e)
-            return Response({"Error: timetable - valid JSON payload not generated"},
+            return Response({"Sorry! Something went wrong!"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         try:
             return JsonResponse(payload, safe=False)
         except Exception as e:
             logger.exception('exception in timetable view while returning JSON response', e)
-            return Response({"Error: timetable - valid JSON response not returned"},
+            return Response({"Sorry! Something went wrong!"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

@@ -3,6 +3,7 @@ import requests
 # from rest_framework import status
 from weather.models import Weather
 from datetime import datetime, timedelta
+from django import db
 import logging
 
 # Create a logger for this file
@@ -35,13 +36,16 @@ def save_update_weather_data(date_weather, hour_of_day, feels_like, wind_speed, 
     # reference for deciding status code : stack-overflow
     # https://stackoverflow.com/questions/3290182/rest-http-status-codes-for-failed-validation-or-invalid-duplicate
     except Exception as e:
-        logger.exception('exception in weather view Weather object', e)
+        logger.error('exception in weather view Weather object')
+        logger.exception(e)
         # return Response({"Error: update_or_create"}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 def weather_cron_job():
     try:
+        db.connections.close_all()
         logger.info("Running schedular")
+
         # Make API request to Open Weather and get response in JSON
         response = requests.get(url=WEATHER_URL, params=WEATHER_PARAMS).json()
 
@@ -110,6 +114,8 @@ def weather_cron_job():
                         hour_of_day = hour_of_day + 1
 
                 except Exception as e:
-                    logger.exception('exception in weather_cron_job for loop', e)
+                    logger.error('exception in weather_cron_job for loop')
+                    logger.exception(e)
     except Exception as e:
-        logger.exception('exception in weather_cron_job', e)
+        logger.error('exception in weather_cron_job')
+        logger.exception(e)
