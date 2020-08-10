@@ -27,15 +27,28 @@ class CustomAuthToken(ObtainAuthToken):
 
 class UserAuthCreate(APIView):
 
+    @staticmethod
+    def is_user_unique(username):
+        try:
+            User.objects.get(username__exact=username)
+            return False
+        except:
+            return True
+
     def post(self, request):
         serializer = UserAuthSerializers(data=request.data)
         if serializer.is_valid():
-            user = User.objects.create_user(username=request.data['username'], email=request.data['username'],
-                                            password=request.data['password'])
-            user.first_name = request.data['first_name']
-            user.last_name = request.data['last_name']
-            user.save()
-            return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
+            user_unique = UserAuthCreate.is_user_unique(request.data['username'])
+            print('user_unique: ', user_unique)
+            if user_unique:
+                user = User.objects.create_user(username=request.data['username'], email=request.data['username'],
+                                                password=request.data['password'])
+                user.first_name = request.data['first_name']
+                user.last_name = request.data['last_name']
+                user.save()
+                return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
+            else:
+                return Response('Username already exists', status=status.HTTP_409_CONFLICT)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
