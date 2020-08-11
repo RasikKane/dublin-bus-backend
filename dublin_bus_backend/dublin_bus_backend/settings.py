@@ -59,7 +59,9 @@ INSTALLED_APPS = [
     'line_routeid.apps.LineRouteidConfig',
     'routes_history.apps.RoutesHistoryConfig',
     'timetable.apps.TimetableConfig',
-    'weather.apps.WeatherConfig'
+    'weather.apps.WeatherConfig',
+    'leap_card.apps.LeapCardConfig'
+
 ]
 
 REST_FRAMEWORK = {

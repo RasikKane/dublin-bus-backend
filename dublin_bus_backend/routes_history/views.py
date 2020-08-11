@@ -65,7 +65,8 @@ class LatestUserRoutes(APIView):
             # try:
             old_route = RoutesHistory.objects.get(start_stop_id=request.data.get('start_stop_id'),
                                                   dest_stop_id=request.data.get('dest_stop_id'),
-                                                  user_id=request.data.get('user_id'))
+                                                  user_id=request.data.get('user_id'),
+                                                  route=request.data.get('route'))
             #     if not old_route.DoesNotExist:
             #         raise ObjectDoesNotExist
             # except ObjectDoesNotExist:
