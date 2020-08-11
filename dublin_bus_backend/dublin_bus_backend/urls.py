@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/', include('routes_history.urls')),
     path('api/', include('timetable.urls')),
     path('api/', include('weather.urls')),
+    path('api/', include('leap_card.urls')),
 ]

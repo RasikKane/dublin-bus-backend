@@ -1,3 +1,4 @@
+pyleapcard==0.1.8
 APScheduler==3.6.3
 asgiref==3.2.10
 certifi==2020.6.20
