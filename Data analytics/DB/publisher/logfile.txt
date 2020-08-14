@@ -1,0 +1,24 @@
+Entries for table timetable  : schema ('line_id', 'direction', 'stop_id', 'program_number', 'planned_arrival')
+Error publish 41 1 (1205, 'Lock wait timeout exceeded; try restarting transaction') 2020-07-29 12:58:29.131312
+Entries for table timetable  : schema ('line_id', 'direction', 'stop_id', 'program_number', 'planned_arrival')
+Error publish 41 1 (1205, 'Lock wait timeout exceeded; try restarting transaction') 2020-07-29 15:22:14.432433
+Entries for table lines_routeids  : schema ('direction', 'line_id', 'route_id')
+valid entry made for key 1 41
+Entries for table weather  : schema ('date_entry', 'hour_Day', 'feels_like', 'wind_speed', 'weather_id', 'temp', 'temp_min', 'temp_max', 'humidity', 'weather_main', 'weather_description')
+Error publish 2017-12-31 24 not all arguments converted during string formatting 2020-07-30 12:01:11.811148
+Entries for table weather  : schema ('date_weather', 'hour_of_Day', 'feels_like', 'wind_speed', 'weather_id', 'temp', 'temp_min', 'temp_max', 'humidity', 'weather_main', 'weather_description')
+Error publish 2017-12-31 24 not all arguments converted during string formatting 2020-07-30 12:02:07.128207
+Entries for table weather  : schema ('date_weather', 'hour_of_Day', 'feels_like', 'wind_speed', 'weather_id', 'temp', 'temp_min', 'temp_max', 'humidity', 'weather_main', 'weather_description')
+Error publish 2017-12-31 24 not all arguments converted during string formatting 2020-07-30 12:07:40.190061
+Entries for table weather  : schema ('date_weather', 'hour_of_Day', 'feels_like', 'wind_speed', 'weather_id', 'temp', 'temp_min', 'temp_max', 'humidity', 'weather_main', 'weather_description')
+valid entry made for key 2017-12-31 24
+Entries for table weather  : schema ('date_weather', 'hour_of_Day', 'feels_like', 'wind_speed', 'weather_id', 'temp', 'temp_min', 'temp_max', 'humidity', 'weather_main', 'weather_description')
+valid entry made for key 2017-12-31 24
+Entries for table weather  : schema ('date_weather', 'hour_of_day', 'feels_like', 'wind_speed', 'weather_id', 'temp', 'temp_min', 'temp_max', 'humidity', 'weather_main', 'weather_description')
+valid entry made for key 2017-12-31 24
+Entries for table stops_routes  : schema ('route', 'direction', 'stop_id', 'program_number')
+valid entry made for key 41 1
+Entries for table stops_routes  : schema ('route', 'direction', 'stop_id', 'program_number')
+valid entry made for key 41 1
+Entries for table stops_routes  : schema ('route', 'direction', 'stop_id', 'program_number')
+valid entry made for key 41 1
